@@ -22,21 +22,23 @@ def get_data(city):
 	return results
 
 def set_data(name,roofpikId):
-	city = city.capitalize()
-	city  = "%" + city + "%"
+	name  = name + "%"
 	cnx = MySQLdb.connect("localhost", "root", "123456", "99acres")
 	cursor = cnx.cursor()
 	# cursor.execute("SELECT * FROM Project Where city like %s" %(repr(city)))
+	result = {}
 	try :
-		cursor.execute('''UPDATE PROJECT SET roofpikID = "''' + roofpikId + '''"''' + '''WHERE projectName + "''' + name +'''"''')
-		
+		cursor.execute('''UPDATE Project SET roofpikID = "''' + roofpikId + '''"''' + ''', flag = 1 Where projectName like "''' + name +'''"''')
+		result['status'] = "Success"
 	except :
 		print "error"
+		result['status'] = "fail"
 
 	finally :
 		cnx.commit()
+
 		cursor.close()
 		cnx.close()
-
+	return result
 # if __name__ == "__main__":
 # 	get_data('gurgaon')
