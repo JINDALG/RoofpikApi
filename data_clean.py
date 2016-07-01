@@ -27,14 +27,16 @@ if __name__ == "__main__":
 	cursor.execute('''DELETE FROM MagicData WHERE SuperBuiltupArea = -1 and CarpetArea=-1''')
 	cursor.execute('''DELETE FROM Data WHERE SuperBuiltupArea = -1 and CarpetArea=-1''')
 
-	# push distinct project details in project table
-	cursor.execute('''INSERT IGNORE INTO Project (projectName,source,city) SELECT ProjectName, Website, City FROM `MagicData` GROUP BY ProjectName, Website, City''')
-	cursor.execute('''INSERT IGNORE INTO Project (projectName,source,city) SELECT ProjectName, Website, City FROM `Data` GROUP BY ProjectName, Website, City''')
+	# remove in from project name if contain
+	cursor.execute('''UPDATE MagicData SET ProjectName = SUBSTRING(ProjectName, 1, CHAR_LENGTH(field) - 2) WHERE ProjectName LIKE '%in' ''')
+	cursor.execute('''UPDATE Data SET ProjectName = SUBSTRING(ProjectName, 1, CHAR_LENGTH(field) - 2) WHERE ProjectName LIKE '%in' ''')
 
 	# push all data in total table
 	cursor.execute(''' INSERT INTO total SELECT * FROM Data ''')
 	cursor.execute(''' INSERT INTO total SELECT * FROM MagicData ''')
 
+	# push distinct project details in project table
+	cursor.execute('''INSERT IGNORE INTO Project (projectName,source,city) SELECT ProjectName, Website, City FROM total GROUP BY ProjectName, Website, City''')
 
 	cnx.commit()
 	cursor.close()
