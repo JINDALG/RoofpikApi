@@ -6,6 +6,7 @@ from firebase import firebase
 from pprint import pprint
 import re
 import traceback
+import json
 
 
 def getCompanyName(website):
@@ -17,7 +18,9 @@ def daysData(df, day):
 	return df[df['PostingDate'] >= currDate - datetime.timedelta(days = day)]
 
 def generalData(df):
+	general = {}
 	gen = {}
+	# general data of price
 	gen['min'] = df.describe()['Price']['min']
 	gen['max'] = df.describe()['Price']['max']
 	gen['avg'] = df.describe()['Price']['mean']
@@ -26,7 +29,19 @@ def generalData(df):
 	gen['median'] = df.describe()['Price']['50%']
 	gen['25%'] = df.describe()['Price']['25%']
 	gen['75%'] = df.describe()['Price']['75%']
-	return gen
+	general['price'] = gen
+	#general data of area
+	gen = {}
+	gen['min'] = df.describe()['SuperBuiltupArea']['min']
+	gen['max'] = df.describe()['SuperBuiltupArea']['max']
+	gen['avg'] = df.describe()['SuperBuiltupArea']['mean']
+	gen['count'] = df.describe()['SuperBuiltupArea']['count']
+	# gen['std'] = df.describe()['Price']['std']
+	gen['median'] = df.describe()['SuperBuiltupArea']['50%']
+	gen['25%'] = df.describe()['SuperBuiltupArea']['25%']
+	gen['75%'] = df.describe()['SuperBuiltupArea']['75%']
+	general['area'] = gen
+	return general
 
 def webLevelAnalysis(dataFrame):
 	websites = list(set(dataFrame['Website']))
@@ -94,6 +109,10 @@ def projectLevelAnalysis(dataFrame, projects, days):
 				projectObj[project.replace('/','').replace('.','').replace('#','')] = segmentLevelData
 		except:
 			print traceback.print_exc()	
+		print project
+		fo= open("data.json",'w')
+		fo.write(json.dumps(projectObj))
+		fo.close()
 	return projectObj	
 
 
@@ -121,6 +140,7 @@ if __name__ == "__main__":
 	analysis= projectLevelAnalysis(dfTotal, projects, days)
 	print "Analysis end"
 	pprint(analysis)
-	print "Firebase start"
-	firebase1 = firebase.FirebaseApplication('https://analysis-70c53.firebaseio.com/',None)
-	print firebase1.put('/data/',currDate.isoformat(),analysis)
+
+	# print "Firebase start"
+	# firebase1 = firebase.FirebaseApplication('https://analysis-70c53.firebaseio.com/',None)
+	# print firebase1.put('/data/',currDate.isoformat(),analysis)
